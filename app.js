@@ -7803,12 +7803,20 @@
                     ))
                 }
                 )),
-                this.$root.$on("sell", (function(t) {
-                    e.quotesInstance.sell(t, (function(a) {
+                this.$root.$on("sell", (function(stocksQuantity) {
+                    // Ce.prototype.sell = function(stocksQuantity, successDealCallback) {
+                    //     stocksQuantity = +stocksQuantity;
+                    //     if (!this.gameIsOver && !(this.stock < stocksQuantity)) {
+                    //         successDealCallback && successDealCallback(this.currentStockDate);
+                    //         this.stock -= stocksQuantity;
+                    //         this.balance += stocksQuantity * this.currentStockValue;
+                    //     }
+                    // }
+                    e.quotesInstance.sell(stocksQuantity, (function(currentDealDate) {
                         Be("/special/timetrader/".concat(e.companyName, "/makeDeal"), "POST"),
                         e.deals.push({
-                            date: a,
-                            quantity: t,
+                            date: currentDealDate,
+                            quantity: stocksQuantity,
                             action: "sell"
                         }),
                         e.$root.$emit("update-deals", e.deals)
@@ -7816,12 +7824,25 @@
                     ))
                 }
                 )),
-                this.$root.$on("buy", (function(t) {
-                    e.quotesInstance.buy(t, (function(a) {
-                        Be("/special/timetrader/yandex/makeDeal", "POST"),
+                this.$root.$on("buy", (function(stocksQuantity) {
+                    // Ce.prototype.buy = function(stocksQuantity, successDealCallback) {
+                    //     stocksQuantity = +stocksQuantity;
+                    //     if (this.gameIsOver)
+                    //         return false;
+                    //
+                    //     var overall = stocksQuantity * this.currentStockValue;
+                    //     if (overall > this.balance)
+                    //         return false;
+                    //
+                    //     successDealCallback && successDealCallback(this.currentStockDate);
+                    //     this.stock += stocksQuantity;
+                    //     this.balance -= overall;
+                    // }
+                    e.quotesInstance.buy(stocksQuantity, (function(currentDealDate) {
+                        Be("/special/timetrader/yandex/makeDeal", "POST"), // Ha, found a bug. Must be e.companyName
                         e.deals.push({
-                            date: a,
-                            quantity: t,
+                            date: currentDealDate,
+                            quantity: stocksQuantity,
                             action: "buy"
                         }),
                         e.$root.$emit("update-deals", e.deals)
