@@ -7870,7 +7870,7 @@ console.log("Cracking the game...");
                     //     }
                     // }
                     e.quotesInstance.sell(stocksQuantity, (function(currentDealDate) {
-                        Be("/special/timetrader/".concat(e.companyName, "/makeDeal"), "POST"),
+                        // Be("/special/timetrader/".concat(e.companyName, "/makeDeal"), "POST"),
                         e.deals.push({
                             date: currentDealDate,
                             quantity: stocksQuantity,
@@ -7896,7 +7896,7 @@ console.log("Cracking the game...");
                     //     this.balance -= overall;
                     // }
                     e.quotesInstance.buy(stocksQuantity, (function(currentDealDate) {
-                        Be("/special/timetrader/yandex/makeDeal", "POST"), // Ha, found a bug. Must be e.companyName
+                        // Be("/special/timetrader/yandex/makeDeal", "POST"), // Ha, found a bug. Must be e.companyName
                         e.deals.push({
                             date: currentDealDate,
                             quantity: stocksQuantity,
