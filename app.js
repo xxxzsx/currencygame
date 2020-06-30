@@ -6674,18 +6674,26 @@
             this.allData = [],
             this.realData = [],
             this.datesArr = [];
-            for (var e = Math.floor(this.fullWidth / (this.data.length - 1)), t = 0; t < this.data.length - 2; t++)
-                for (var a = this.data[t].value, i = this.data[t + 1].value, s = i - a, n = 0; n <= e; n++) {
-                    var l = n / e
-                      , u = a + l * s;
-                    this.allData.push(u),
-                    this.realData.push(a),
-                    this.datesArr.push(this.data[t].date)
+            for (var xCoord = Math.floor(this.fullWidth / (this.data.length - 1)), pointIndex = 0; pointIndex < this.data.length - 2; pointIndex++)
+                for (
+                    var currentValue = this.data[pointIndex].value,
+                        nextValue = this.data[pointIndex + 1].value,
+                        stockPriceChange = nextValue - currentValue,
+                        xChange = 0;
+                    xChange <= xCoord;
+                    xChange++
+                ) {
+                    var yCoord = currentValue + (xChange / xCoord) * stockPriceChange;
+                    this.allData.push(yCoord),
+                    this.realData.push(currentValue),
+                    this.datesArr.push(this.data[pointIndex].date)
                 }
+            // End padding
             for (var o = this.fullWidth - this.allData.length, r = 0; r < o; r++)
                 this.allData.push(this.data[this.data.length - 1].value),
                 this.realData.push(this.data[this.data.length - 1].value),
                 this.datesArr.push(this.data[this.data.length - 1].date);
+            // End points
             this.allData[this.allData.length - 1] = this.data[this.data.length - 1].value,
             this.realData[this.realData.length - 1] = this.data[this.data.length - 1].value,
             this.datesArr[this.datesArr.length - 1] = this.data[this.data.length - 1].date
@@ -6784,7 +6792,17 @@
               , i = a / (this.fullWidth - this.vpWidth)
               , s = (this.userSeek,
             (this.currentSeek - this.userSeek) / i);
-            if (this.isSeeking ? this.quotesWidth = s >= 0 && s <= 1 ? a + s * a : this.vpWidth : this.quotesWidth = e <= 1 ? a * this.clamp(e, 0, 1) : t >= 0 ? this.vpWidth / 2 * (1 - this.clamp(t, 0, 1) + 1) : a,
+            if ( // I'll not try to understand it
+                this.isSeeking ?
+                    this.quotesWidth = s >= 0 &&
+                    s <= 1 ?
+                        a + s * a :
+                        this.vpWidth :
+                    this.quotesWidth = e <= 1 ?
+                        a * this.clamp(e, 0, 1) :
+                        t >= 0 ?
+                            this.vpWidth / 2 * (1 - this.clamp(t, 0, 1) + 1) :
+                            a,
             this.isSeeking)
                 this.pixiBadge.alpha = 1,
                 this.pixiBadge.scale.set(1);
@@ -6937,12 +6955,15 @@
         Ce.prototype.pixiRenderQuotes2 = function() {
             this.calcBestYShift(),
             this.pixiQuotes.y = this.yShift,
-            this.pixiQuotes.x = -this.seek * (this.fullWidth - this.vpWidth),
-            this.prevQuotesWidth !== this.quotesWidth && (this.pixiQuotesPanel.clear(),
-            this.pixiQuotesPanel.lineStyle(0),
-            this.pixiQuotesPanel.beginFill(this.getColor(ye[this.companyName].quotes.bg)),
-            this.pixiQuotesPanel.drawRect(this.quotesWidth, 0, this.vpWidth, this.vpHeight),
-            this.pixiQuotesPanel.endFill()),
+            this.pixiQuotes.x = -this.seek * (this.fullWidth - this.vpWidth);
+
+            if (this.prevQuotesWidth !== this.quotesWidth) {
+                this.pixiQuotesPanel.clear(),
+                this.pixiQuotesPanel.lineStyle(0),
+                this.pixiQuotesPanel.beginFill(this.getColor(ye[this.companyName].quotes.bg)),
+                this.pixiQuotesPanel.drawRect(this.quotesWidth, 0, this.vpWidth, this.vpHeight),
+                this.pixiQuotesPanel.endFill()
+            }
             this.prevQuotesWidth = this.quotesWidth
         }
         ,
