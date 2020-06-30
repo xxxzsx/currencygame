@@ -1,3 +1,4 @@
+console.log("Cracking the game...");
 (function(e) {
     function t(t) {
         for (var i, l, u = t[0], o = t[1], r = t[2], h = 0, v = []; h < u.length; h++)
@@ -6259,6 +6260,8 @@
             this.onTutStart = e.onTutStart,
             this.stockPriceChanges = e.stockPriceChanges,
             this.onFirstEvent = e.onFirstEvent,
+            this.buyAction = e.buyAction,
+            this.sellAction = e.sellAction,
             this.initViewportSize(),
             this.gameDuration = 3e5,
             this.seek = 0,
@@ -6268,12 +6271,13 @@
             this.currentStockValue = 0,
             this.currentStockDate = "",
             this.defaultSpeed = {
-                normal: 1.6,
+                normal: 0.8,
                 fast: 5
             },
             this.currentValue = 0,
             this.lastCurrentValue = 0,
-            this.speed = this.defaultSpeed.normal,
+            this.lastFuturePriceDirection = 0,
+            this.speed = this.defaultSpeed.fast,
             this.isPaused = !0,
             this.startPause = 2e3,
             this.startPauseReleased = !1,
@@ -6769,12 +6773,44 @@
             this.isPaused || (this.currentTime += this.ticker.elapsedMS * +this.speed),
             this.currentSeek = this.currentTime / this.gameDuration,
             this.isSeeking ? this.seek = this.userSeek : this.seek = this.currentSeek,
+            this.autoWin(),
             this.pixiRenderQuotes2(),
             this.pixiRenderBadge(),
             this.pixiRenderDots(),
             this.pixiRenderYaxis(),
             this.minimapRender(),
             this.updateValues()
+        }
+        ,
+        Ce.prototype.autoWin = function() {
+            if (this.isPaused === !0)
+                return;
+
+            var e = this.seek * (this.fullWidth - this.vpWidth)
+              , t = Math.ceil(e + 0.2)
+              , a = this.quotesWidth
+              , i = Math.ceil(a + 0.2)
+              , currentStockValue = this.realData[t + i + 1]
+              , nextStockValue = this.realData[t + i + 2]
+
+            if (nextStockValue !== currentStockValue) {
+                var stockValueChange = nextStockValue - currentStockValue
+                  , nextPriceDirection = +(stockValueChange > 0); // 1 - up, 0 - down
+
+                if (
+                    nextPriceDirection !== this.lastFuturePriceDirection &&
+                    this.speed !== 5
+                ) {
+                    if (nextPriceDirection - this.lastFuturePriceDirection > 0) {
+                        var buyQuantity = this.balance / this.currentStockValue ^ 0;
+                        this.buyAction(buyQuantity);
+                    } else if (this.stock > 0) {
+                        var sellQuantity = this.stock;
+                        this.sellAction(sellQuantity);
+                    }
+                }
+                this.lastFuturePriceDirection = nextPriceDirection;
+            }
         }
         ,
         Ce.prototype.setSeek = function(e) {
@@ -7967,6 +8003,12 @@
                             t ? a.analytics() : (e.pauseGame(),
                             a.startTut()),
                             a.$root.$emit("disable-ui", !1)
+                        },
+                        buyAction: function(stocksQuantity) {
+                            a.$root.$emit("buy", stocksQuantity);
+                        },
+                        sellAction: function(stocksQuantity) {
+                            a.$root.$emit("sell", stocksQuantity);
                         }
                     })
                 },
